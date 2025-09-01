@@ -15,6 +15,6 @@ export class App {
   constructor(public router: Router) {}
 
   get isHome(): boolean {
-    return this.router.url === '/';
+    return this.router.url === '/' || this.router.url === '/#about';
   }
 }
