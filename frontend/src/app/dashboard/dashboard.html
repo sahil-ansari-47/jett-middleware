@@ -1,0 +1,41 @@
+<div
+  class="text-2xl text-white min-h-[90vh] bg-black p-20 pb-30 flex flex-col gap-10"
+>
+  <div class="ml-[15vw] flex flex-col gap-5">
+    <h1
+      class="font-bold text-transparent w-fit text-6xl bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text"
+    >
+      Hi, Sahil
+    </h1>
+    <h2 class="text-2xl">Welcome to your dashboard!</h2>
+  </div>
+  <h2 class="text-white font-semibold text-2xl mb-4">Your Projects</h2>
+  <div class="grid grid-cols-3 gap-6 items-center">
+    <!-- First card: + New Project -->
+    <div
+      class="bg-white rounded-lg h-40 p-4 flex items-center shadow-md justify-center font-bold text-xl cursor-pointer text-black"
+    >
+      + New Project
+  </div>
+
+    <!-- Rest of your projects -->
+    <app-card *ngFor="let project of yourProjects">
+      <h3 class="font-semibold">{{ project.name }}</h3>
+      <p class="text-sm text-gray-500">{{ project.url }}</p>
+      <p class="text-sm">Last commit: {{ project.lastCommitMessage }}</p>
+      <p class="text-xs text-gray-400">
+        {{ project.lastCommitDate }} | {{ project.branch }}
+      </p>
+    </app-card>
+  </div>
+
+  <h2 class="text-white font-semibold text-2xl mt-8 mb-4">
+    Community Projects
+  </h2>
+  <div class="grid grid-cols-3 gap-6">
+    <app-card *ngFor="let project of communityProjects" class="p-4">
+      <h3 class="font-semibold">{{ project.name }}</h3>
+      <p class="text-sm text-gray-500">{{ project.url }}</p>
+    </app-card>
+  </div>
+</div>

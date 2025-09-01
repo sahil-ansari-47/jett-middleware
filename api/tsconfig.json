@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    /* Module resolution */
+    "module": "nodenext", // ✅ modern Node ESM support
+    "moduleResolution": "nodenext",
+    "target": "esnext",
+
+    /* Output */
+    "outDir": "./dist", // compiled JS output
+    "rootDir": "./src", // keep TS inside src/
+    "sourceMap": true,
+
+    /* Type declaration */
+    "declaration": true,
+    "declarationMap": true,
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    /* Compatibility */
+    "skipLibCheck": true,
+    "esModuleInterop": true, // ✅ for commonjs interop (Express, Passport)
+    "allowSyntheticDefaultImports": true,
+
+    /* Type roots (include custom types e.g. passport-github2) */
+    "typeRoots": ["./src/types", "./node_modules/@types"],
+
+    /* Backend doesn’t need JSX */
+    "jsx": "preserve"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

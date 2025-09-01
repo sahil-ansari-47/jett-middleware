@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@import "@angular/cdk/overlay-prebuilt.css";
+
+@theme {
+  --color-p1: #9368b7;
+  --color-p2: #e8d7ff;
+  --color-p3: #99e1d9;
+  --color-p4: #0d324d;
+}
+
+@layer utilities {
+  .gc {
+    @apply absolute rounded-full mix-blend-hard-light z-0;
+  }
+  .gc1 {
+    @apply bg-radial from-p2/50 to-p1/50 w-3/5 top-[50vh] aspect-square;
+  }
+  .gc2 {
+    @apply bg-radial from-p2/50 to-p3/50 w-2/5 top-[50vh] left-2/3 aspect-square;
+  }
+  .gc3 {
+    @apply bg-radial from-p2/50 to-pink-300/50 w-4/12 top-[20vh] left-2/3 aspect-square;
+  }
+  .interactive {
+    @apply absolute rounded-full bg-radial from-p2/50 to-p2/20 w-1/5 aspect-square mix-blend-color-dodge z-0;
+  }
+  .deploy {
+    @apply bg-gradient-to-r from-white to-cyan-400 transform transition-colors duration-1000 hover:from-cyan-400 hover:to-white focus:ring-4 focus:ring-cyan-400/50 focus:outline-none cursor-pointer text-black w-full rounded-2xl py-2 px-4;
+  }
+  .label {
+    @apply absolute text-gray-500 py-2 px-8 text-sm transition-all -translate-y-10 -translate-x-5 peer-placeholder-shown:translate-0 peer-placeholder-shown:text-lg peer-focus:-translate-y-10 peer-focus:-translate-x-5 peer-focus:text-sm peer-focus:text-cyan-200 cursor-text;
+  }
+  .shadowup{
+    filter: drop-shadow(0 -5px 10px rgba(51, 153, 51, 0.5));
+  }
+  .url {
+    @apply block w-full bg-transparent border-4 border-white rounded-4xl text-lg px-4 focus:outline-none focus:border-cyan-200 py-1;
+  }
+  .card {
+    @apply bg-black text-center rounded-2xl relative;
+  }
+  .card::after,
+  .card::before {
+    @apply absolute h-full w-full top-1/2 left-1/2 p-2 rounded-2xl bg-conic from-red-600 to-blue-600;
+  }
+  .card::before {
+    @apply blur-2xl opacity-80;
+  }
+  .moveInCircle {
+    transform-origin: 10% 10%;
+    animation: moveInCircle 30s linear infinite;
+    will-change: transform;
+  }
+  .moveVertical {
+    animation: moveVertical 30s ease-in-out infinite;
+    will-change: transform;
+  }
+  .moveHorizontal {
+    animation: moveHorizontal 30s ease-in-out infinite;
+    will-change: transform;
+  }
+  body::selection{
+    @apply bg-purple-300
+  }
+}
+@keyframes moveInCircle {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes moveVertical {
+  0% {
+    transform: translateY(-30%);
+  }
+  50% {
+    transform: translateY(30%);
+  }
+  100% {
+    transform: translateY(-30%);
+  }
+}
+@keyframes moveHorizontal {
+  0% {
+    transform: translateX(-20%);
+  }
+  50% {
+    transform: translateX(20%);
+  }
+  100% {
+    transform: translateX(-20%);
+  }
+}
