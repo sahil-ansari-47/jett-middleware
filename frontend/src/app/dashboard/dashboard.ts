@@ -1,101 +1,109 @@
-import { Component } from '@angular/core';
+import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { Card } from '../components/card/card';
-import { CommonModule } from '@angular/common';
-
+import { CommonModule, formatDate, isPlatformBrowser } from '@angular/common';
+import { UserService } from '../services/user';
+import { environment } from '../../environments/environment';
+import { DialogService } from '../services/dialog';
+import { DrawerComponent } from '../components/drawer/drawer';
+import { DrawerService } from '../services/drawer';
 interface Project {
-  name: string;
-  url: string;
-  lastCommitMessage: string;
-  lastCommitDate: string;
-  branch: string;
+  deploy_id: string;
+  project_name: string;
+  status: string;
+  user_id: string;
+  deployed_url: string;
+  repo_link: string;
+  last_commit_message: string;
+  last_commit_datetime: string;
+  createdAt: Date;
+  createdAtString: string;
+  branch_name: string;
 }
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Card, CommonModule],
+  imports: [CommonModule, DrawerComponent],
   templateUrl: './dashboard.html',
 })
 export class Dashboard {
-  yourProjects: Project[] = [
-    {
-      name: 'Project 1',
-      url: 'https://github.com/repo1',
-      lastCommitMessage: 'Initial commit',
-      lastCommitDate: '2025-08-30',
-      branch: 'main',
-    },
-    {
-      name: 'Project 2',
-      url: 'https://github.com/repo2',
-      lastCommitMessage: 'Added feature',
-      lastCommitDate: '2025-08-28',
-      branch: 'dev',
-    },
-    {
-      name: 'Project 3',
-      url: 'https://github.com/repo3',
-      lastCommitMessage: 'Bug fix',
-      lastCommitDate: '2025-08-27',
-      branch: 'main',
-    },
-    {
-      name: 'Project 4',
-      url: 'https://github.com/repo4',
-      lastCommitMessage: 'Updated README',
-      lastCommitDate: '2025-08-26',
-      branch: 'main',
-    },
-  ];
+  private dialog = inject(DialogService);
+  private platformId = inject(PLATFORM_ID);
+  private apiUrl = environment.apiUrl;
+  private service = inject(UserService);
+  public user = this.service.user;
+  public UserProjects: Project[] = [];
+  public CommunityProjects: Project[] = [];
+  constructor(public userService: UserService, public drawer: DrawerService) {
+    // Only fetch user if NOT server-side
+    if (isPlatformBrowser(this.platformId)) {
+      this.fetchCurrentUser();
+      this.fetchProjects();
+    }
+  }
 
-  communityProjects: Project[] = [
-    {
-      name: 'Community 1',
-      url: 'https://github.com/com1',
-      lastCommitMessage: 'Init',
-      lastCommitDate: '2025-08-25',
-      branch: 'main',
-    },
-    {
-      name: 'Community 2',
-      url: 'https://github.com/com2',
-      lastCommitMessage: 'Fix bug',
-      lastCommitDate: '2025-08-24',
-      branch: 'main',
-    },
-    {
-      name: 'Community 3',
-      url: 'https://github.com/com3',
-      lastCommitMessage: 'Add docs',
-      lastCommitDate: '2025-08-23',
-      branch: 'main',
-    },
-    {
-      name: 'Community 4',
-      url: 'https://github.com/com3',
-      lastCommitMessage: 'Add docs',
-      lastCommitDate: '2025-08-23',
-      branch: 'main',
-    },
-    {
-      name: 'Community 5',
-      url: 'https://github.com/com3',
-      lastCommitMessage: 'Add docs',
-      lastCommitDate: '2025-08-23',
-      branch: 'main',
-    },
-    {
-      name: 'Community 6',
-      url: 'https://github.com/com3',
-      lastCommitMessage: 'Add docs',
-      lastCommitDate: '2025-08-23',
-      branch: 'main',
-    },
-    {
-      name: 'Community 7',
-      url: 'https://github.com/com3',
-      lastCommitMessage: 'Add docs',
-      lastCommitDate: '2025-08-23',
-      branch: 'main',
-    },
-  ];
+  fetchCurrentUser() {
+    fetch(`${this.apiUrl}/api/auth/me`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((user) => {
+        if (user) {
+          this.userService.setUser(user);
+        }
+      });
+  }
+  private getRelativeTime(date: string | Date  ): string {
+    const now = new Date();
+    let diffMs: number=0;
+    if (!(date instanceof Date)) {
+      console.log('string');
+      const datedate = new Date(date);  
+      diffMs = now.getTime() - datedate.getTime();
+    }else{
+      console.log('date');
+      diffMs = now.getTime() - date.getTime();
+    }
+
+    const seconds = Math.floor(diffMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const weeks = Math.floor(days / 7);
+    const months = Math.floor(days / 30.44); // Use average days in a month for better accuracy
+    const years = Math.floor(months / 12);
+
+    if (seconds < 60) return `${seconds}s ago`;
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    if (weeks < 4) return `${weeks}w ago`;
+    if (months < 12) return `${months}mo ago`;
+    if (years < 10) return `${years}y ago`;
+
+    // fallback: show formatted date
+    return new Date(date).toLocaleDateString();
+}
+  createProject(){
+    this.dialog.openNewProject();
+  }
+
+  fetchProjects() {
+    fetch(`${this.apiUrl}/api/projects`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((projects : Project[]) => {
+        console.log(projects);
+        try{
+          projects.forEach(project => {
+            if(project.user_id === this.user._id){
+              project.last_commit_datetime = this.getRelativeTime(project.last_commit_datetime);
+              this.UserProjects.push(project);
+            }else{
+              console.log(project);
+              project.createdAtString = this.getRelativeTime(project.createdAt);
+              this.CommunityProjects.push(project);
+            }
+          });
+        }catch(e){
+          console.log(e);
+        }
+      });
+  }
 }

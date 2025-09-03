@@ -3,21 +3,19 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as GitHubStrategy } from "passport-github2";
 import dotenv from "dotenv";
 import { User, IUser } from "./models/User";
-import mongoose from "mongoose";
 
 dotenv.config();
 
 // Serialize user
-passport.serializeUser((user: Express.User, done) => {
-  done(null, (user as IUser)._id.toString());
+passport.serializeUser((user: IUser, done) => {
+  done(null, user._id.toString());
 });
 
 // Deserialize user
 passport.deserializeUser(async (id: string, done) => {
   try {
-    const userId = new mongoose.Types.ObjectId(id);
-    const user = await User.findOne({_id: userId}).exec();
-    done(null, user);
+    const user = await User.findById(id).exec();
+    done(null, user || null);
   } catch (err) {
     done(err, null);
   }
@@ -33,16 +31,10 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        await User.findOne({
+        const existingUser = await User.findOne({
           provider: "google",
           providerId: profile.id,
-        })
-          .then((existingUser: any) => {
-            return done(null, existingUser);
-          })
-          .catch((err) => {
-            return done(err, null);
-          });
+        });
 
         if (existingUser) return done(null, existingUser);
 
@@ -56,7 +48,7 @@ passport.use(
 
         return done(null, newUser);
       } catch (err) {
-        return done(err, null);
+        return done(err, undefined);
       }
     }
   )
@@ -72,24 +64,35 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const existingUser = await User.findOne({
+        const githubProfile = profile as any;
+        const user = await User.findOne({
           provider: "github",
-          providerId: profile.id,
+          providerId: githubProfile.id,
         });
 
-        if (existingUser) return done(null, existingUser);
+        if (user) {
+          // Update user info
+          user.name = githubProfile.username;
+          user.email = githubProfile.emails?.[0]?.value || user.email;
+          user.avatar = githubProfile.photos?.[0]?.value || user.avatar;
+          user.accessToken = accessToken; // always update token
+          await user.save();
+
+          return done(null, user);
+        }
 
         const newUser = await User.create({
           provider: "github",
-          providerId: profile.id,
-          name: profile.displayName || profile.username,
-          email: profile.emails?.[0]?.value,
-          avatar: profile.photos?.[0]?.value,
+          providerId: githubProfile.id,
+          name: githubProfile.username,
+          email: githubProfile.emails?.[0]?.value,
+          avatar: githubProfile.photos?.[0]?.value,
+          accessToken,
         });
 
         return done(null, newUser);
       } catch (err) {
-        return done(err, null);
+        return done(err, undefined);
       }
     }
   )

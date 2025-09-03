@@ -1,6 +1,7 @@
-import { Component, Output, EventEmitter, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogService } from '../../services/dialog';
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-login-dialog',
   imports: [CommonModule],
@@ -9,12 +10,12 @@ import { DialogService } from '../../services/dialog';
 })
 export class LoginDialog {
   private dialog = inject(DialogService);
-
+  private apiUrl = environment.apiUrl;
   login(provider: 'google' | 'github') {
-    window.location.href = `http://localhost:3000/auth/${provider}`;
+    window.location.href = `${this.apiUrl}/api/auth/${provider}`;
   }
 
   close(){
-    this.dialog.close()
+    this.dialog.closeDialog()
   }
 }

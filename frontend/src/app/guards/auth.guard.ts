@@ -1,30 +1,33 @@
 import { CanActivateFn, Router } from '@angular/router';
-import { inject } from '@angular/core';
-import { from, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { isPlatformServer } from '@angular/common';
+import { inject, PLATFORM_ID } from '@angular/core';
 
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = async() => {
   const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
 
-  return from(
-    fetch('http://localhost:3000/auth/me', {
+  const apiUrl = isPlatformServer(platformId)
+    ? process.env['API_URL'] || 'http://localhost:3000'
+    : 'http://localhost:3000';
+
+  try {
+    const res = await fetch(`${apiUrl}/api/auth/me`, {
       method: 'GET',
       credentials: 'include',
-    })
-  ).pipe(
-    switchMap((res) => res.json()),
-    map((user) => {
-      console.log('authGuard user:', user);
-      if (user) {
-        return true;
-      } else {
-        router.navigate(['/']);
-        return false;
-      }
-    }),
-    catchError(() => {
+    });
+
+    // Parse JSON
+    const user = await res.json();
+
+    if (user) {
+      return true;
+    } else {
       router.navigate(['/']);
-      return of(false);
-    })
-  );
+      return false;
+    }
+  } catch (err) {
+    console.error('authGuard error:', err);
+    router.navigate(['/']);
+    return false;
+  }
 };
