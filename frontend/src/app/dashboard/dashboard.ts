@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { Card } from '../components/card/card';
 import { CommonModule } from '@angular/common';
-
+import { MultiStepLoaderComponent } from '../components/mutli-step-loader/mutli-step-loader';
+// import { infinity } from 'ldrs';
 interface Project {
   name: string;
   url: string;
@@ -12,7 +13,7 @@ interface Project {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Card, CommonModule],
+  imports: [Card, CommonModule, MultiStepLoaderComponent],
   templateUrl: './dashboard.html',
 })
 export class Dashboard {
@@ -97,5 +98,18 @@ export class Dashboard {
       lastCommitDate: '2025-08-23',
       branch: 'main',
     },
+  ];
+
+  loading = false;
+
+  loadingStates = [
+    { text: 'Buying a condo' },
+    { text: 'Travelling in a flight' },
+    { text: 'Meeting Tyler Durden' },
+    { text: 'He makes soap' },
+    { text: 'We goto a bar' },
+    { text: 'Start a fight' },
+    { text: 'We like it' },
+    { text: 'Welcome to F**** C***' },
   ];
 }

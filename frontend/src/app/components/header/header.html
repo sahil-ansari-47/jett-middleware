@@ -1,38 +1,9 @@
-<!-- <header class="h-[12vh] border-b-2 border-gray-400 backdrop-blur-2xl relative">
-  <nav class="h-full flex justify-around items-center">
-    <div routerLink="/" class="flex gap-4 items-center cursor-pointer">
-      <img src="Logo.png" alt="" class="size-16 translate-y-1" />
-      <img src="Title.png" alt="Jett" class="h-16" />
-    </div>
-    <ul class="flex text-white gap-10 text-lg items-center font-semibold">
-      <li>About</li>
-      <li>Docs</li>
-
-      @if (!(userService.user$ | async)) {
-      <li
-        (click)="openLogin()"
-        class="bg-white rounded-2xl px-3 text-black cursor-pointer"
-      >
-        Log in
-      </li>
-      } @else {
-      <li
-        (click)="logout()"
-        class="bg-red-500 rounded-2xl px-3 text-white cursor-pointer"
-      >
-        Log out
-      </li>
-      }
-    </ul>
-  </nav>
-</header> -->
-
 <header class="bg-transparent text-gray-300 font-sans relative">
   <nav class="mx-auto max-w-screen-2xl px-6 z-50">
     <div class="flex h-14 items-center justify-between">
       <!-- <div class="flex items-center gap-10"> -->
       <a href="#" class="flex items-center gap-2 text-white">
-        <img src="Logo.png" alt="" class="size-8" />
+        <img src="/icons/jettlogo.svg" alt="" class="size-8" />
         <!-- <span class="text-xl font-semibold tracking-tight">Jett</span> -->
         <img src="Title.png" alt="" class="size-8" />
       </a>

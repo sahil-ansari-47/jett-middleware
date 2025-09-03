@@ -4,10 +4,16 @@ import { Header } from './components/header/header';
 import { InteractiveBubbleDirective } from './directives/bubble';
 import { Router } from '@angular/router';
 import { Footer } from './components/footer/footer';
-
+import { NewDialog } from './components/new-dialog/new-dialog';
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, InteractiveBubbleDirective, Footer],
+  imports: [
+    RouterOutlet,
+    Header,
+    NewDialog,
+    InteractiveBubbleDirective,
+    Footer,
+  ],
   templateUrl: './app.html',
   standalone: true,
 })
