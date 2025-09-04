@@ -51,6 +51,7 @@ export class Dashboard {
     }
     this.dialogservice.projectCreated$.subscribe(() => {
       this.UserProjects = [];
+      this.CommunityProjects = [];
       this.fetchProjects();
     });
   }

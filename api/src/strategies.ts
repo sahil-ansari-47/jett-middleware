@@ -75,22 +75,6 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const githubProfile = profile as any;
-
-        // Find by providerId first
-        let user = await User.findOne({ providerIds: githubProfile.id });
-
-        if (user) {
-          // Update user info
-          user.name = githubProfile.username || user.name;
-          user.email = githubProfile.emails?.[0]?.value || user.email;
-          user.avatar = githubProfile.photos?.[0]?.value || user.avatar;
-          user.accessToken = accessToken;
-          await user.save();
-
-          return done(null, user);
-        }
-
-        // Or link by email if account already exists
         let existing = await User.findOne({
           email: githubProfile.emails?.[0]?.value,
         });

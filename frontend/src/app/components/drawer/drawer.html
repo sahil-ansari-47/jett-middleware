@@ -101,12 +101,12 @@
 
     <div class="mt-4 flex items-center gap-3 rounded-2xl px-3 py-2">
       <img
-        [src]="user.user.avatar ? user.user.avatar : '/icons/avatar.svg'"
+        [src]="user.user?.avatar || '/icons/avatar.svg'"
         alt=""
         class="h-8 w-8 rounded-full"
       />
       <div class="text-lg font-semibold text-gray-600">
-        {{ user.user.name }}
+        {{ user.user?.name || user.user?.username }}
       </div>
     </div>
   </div>

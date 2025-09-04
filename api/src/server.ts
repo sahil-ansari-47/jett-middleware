@@ -13,9 +13,13 @@ dotenv.config();
 
 const app = express();
 
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:4200";
+const BACKEND_URL = process.env.BACKEND_URL;
+const PORT = process.env.PORT || 3000;
+
 app.use(
   cors({
-    origin: "http://localhost:4200",
+    origin: FRONTEND_URL,
     credentials: true,
   })
 );
@@ -75,7 +79,7 @@ app.get(
   "/api/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
-    res.redirect("http://localhost:4200/dashboard");
+    res.redirect(`${FRONTEND_URL}/dashboard`);
   }
 );
 
@@ -90,9 +94,7 @@ app.get(
   "/api/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/" }),
   async (req, res) => {
-    // const user = await fetch("http://localhost:3000/api/auth/me");
-    // res.redirect("http://localhost:3000/api/github/repos");
-    res.redirect("http://localhost:4200/dashboard");
+    res.redirect(`${FRONTEND_URL}/dashboard`);
   }
 );
 
@@ -103,12 +105,6 @@ app.get("/api/github/repos", async (req, res) => {
     const at: string = req.user.accessToken ?? "";
     const repos = await getUserRepos(at);
     res.json(repos);
-    // const redirectUrl = req.query.redirect;
-    // if (redirectUrl) {
-    //   res.redirect(`http://localhost:4200${redirectUrl}`);
-    // } else {
-    //   res.json({ message: "Welcome to the repos page!" });
-    // }
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
@@ -154,32 +150,25 @@ app.post("/api/create-project", async (req, res) => {
   return res.status(200).json({ message: "Project created successfully" });
 });
 
-  app.patch("/api/update-status", async (req, res) => {
-    const deploy_id = req.body.deploy_id;
-    const response = await fetch(
-      `https://jett-upload-service.onrender.com/status?id=${deploy_id}`
-    ).then((res) => res.json() as any);
-    console.log(response);
-    const status: string = response.status;
-    const deployed_url: string = response.url;
-    await Project.findOneAndUpdate(
-      { deploy_id: deploy_id },
-      { $set: { status: status, deployed_url: deployed_url } }
-    ).exec();
-    return res.status(200).json({status: status, deployed_url: deployed_url});
-  });
-
-// app.get("/api/projects/:deploy_id", async (req, res) => {
-//   const deploy_id = req.params.deploy_id;
-//   const project = await Project.findOne({ deploy_id: deploy_id }).exec();
-//   return res.status(200).json(project);
-// });
+app.patch("/api/update-status", async (req, res) => {
+  const deploy_id = req.body.deploy_id;
+  const response = await fetch(`${BACKEND_URL}/status?id=${deploy_id}`).then(
+    (res) => res.json() as any
+  );
+  console.log(response);
+  const status: string = response.status;
+  const deployed_url: string = response.url;
+  await Project.findOneAndUpdate(
+    { deploy_id: deploy_id },
+    { $set: { status: status, deployed_url: deployed_url } }
+  ).exec();
+  return res.status(200).json({ status: status, deployed_url: deployed_url });
+});
 
 app.get("/api/projects", async (req, res) => {
   const projects = await Project.find().exec();
   return res.status(200).json(projects);
 });
-const PORT = 3000;
 
 const startServer = async () => {
   await connectToDatabase(process.env.MONGODB_URI || "");
