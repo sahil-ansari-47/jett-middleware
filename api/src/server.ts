@@ -173,14 +173,14 @@ app.get("/api/projects", async (req, res) => {
   return res.status(200).json(projects);
 });
 
-const startServer = async () => {
-  await connectToDatabase(process.env.MONGODB_URI || "");
-  app.listen(PORT, () =>
-    console.log(`Server running on http://localhost:${PORT}`)
-  );
-};
+// const startServer = async () => {
+//   await connectToDatabase(process.env.MONGODB_URI || "");
+//   app.listen(PORT, () =>
+//     console.log(`Server running on http://localhost:${PORT}`)
+//   );
+// };
 export default app;
 
-if (process.env.NODE_ENV !== "production") {
-  startServer();
-}
+// if (process.env.NODE_ENV !== "production") {
+//   startServer();
+// }
