@@ -17,6 +17,9 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:4200";
 const BACKEND_URL = process.env.BACKEND_URL;
 const PORT = process.env.PORT || 3000;
 
+// connect once on cold start
+connectToDatabase( process.env.MONGODB_URI || "" );
+
 app.use(
   cors({
     origin: FRONTEND_URL,
@@ -176,5 +179,8 @@ const startServer = async () => {
     console.log(`Server running on http://localhost:${PORT}`)
   );
 };
+export default app;
 
-startServer();
+if (process.env.NODE_ENV !== "production") {
+  startServer();
+}
