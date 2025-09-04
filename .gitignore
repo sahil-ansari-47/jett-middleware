@@ -6,3 +6,4 @@ frontend/.angular/
 frontend/.env
 .vscode/
 api/.env
+api/dist

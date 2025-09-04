@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "name": "jett",
+  "builds": [
+    {
+      "src": "api/dist/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/dist/server.js"
+    }
+  ]
+}
