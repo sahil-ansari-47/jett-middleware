@@ -1,0 +1,15 @@
+<div
+  class="relative w-full flex flex-col items-center justify-center"
+  [ngClass]="containerClass"
+>
+  <canvas
+    #canvas
+    class="absolute inset-0 z-1"
+    [style.filter]="isSafari ? 'blur(' + blur + 'px)' : undefined"
+    aria-hidden="true"
+  ></canvas>
+
+  <div class="h-[400px] relative z-2" [ngClass]="contentClass">
+    <ng-content></ng-content>
+  </div>
+</div>

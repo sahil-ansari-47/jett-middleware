@@ -2,19 +2,21 @@ import { Schema, Document, Types, Model, model, models } from "mongoose";
 
 export interface IUser extends Document {
   _id: Types.ObjectId;
-  provider: string;
-  providerId: string;
+  providers: Array<string>;
+  providerIds: Array<string>;
   name: string;
+  username: string;
   email: string;
-  avatar?: string;
+  avatar: string | undefined;
   accessToken?: string
 }
 
 const UserSchema = new Schema<IUser>({
-  provider: { type: String, required: true },
-  providerId: { type: String, required: true, unique: true },
+  providers: { type: [String], required: true },
+  providerIds: { type: [String], required: true},
+  username: String,
   name: String,
-  email: String,
+  email: { type: String, required: true, unique: true },
   avatar: String,
   accessToken: String
 });

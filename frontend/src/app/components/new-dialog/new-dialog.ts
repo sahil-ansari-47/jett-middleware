@@ -10,6 +10,8 @@ import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { UserService } from '../../services/user';
 import { DialogService } from '../../services/dialog';
 import { environment } from '../../../environments/environment';
+import { LoadingService } from '../../services/loading-service';
+
 interface Repo {
   id: number;
   name: string;
@@ -33,6 +35,8 @@ export class NewDialog implements OnInit, OnDestroy {
   public user = this.service.user;
   public repos: Repo[] | null = null;
   public urlInput: string = '';
+
+  constructor(private loading: LoadingService) {}
   async ngOnInit(): Promise<void> {
     if (isPlatformBrowser(this.platformId)) {
       this.repos = await this.fetchUserRepos();
@@ -141,19 +145,28 @@ export class NewDialog implements OnInit, OnDestroy {
       .then((response) => response.json())
       .then(async (data) => {
         console.log(data);
-        return await fetch(`${this.apiUrl}/api/create-project`, {
+        await fetch(`${this.apiUrl}/api/create-project`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             repoUrl: `https://github.com/${repo.username}/${repo.name}`,
             deploy_id: data.id,
           }),
         });
+
+        // 🔹 notify dashboard to refetch
+        this.dialog.emitProjectCreated();
       });
   }
   close() {
     this.dialog.closeDialog();
+  }
+  deployandclose() {
+    this.loading.startLoading();
+    this.close();
+  }
+
+  login(provider: 'google' | 'github') {
+    window.location.href = `${this.apiUrl}/api/auth/${provider}`;
   }
 }

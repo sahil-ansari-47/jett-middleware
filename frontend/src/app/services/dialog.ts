@@ -3,11 +3,17 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { LoginDialog } from '../components/login-dialog/login-dialog';
 import { NewDialog } from '../components/new-dialog/new-dialog';
+import { Subject } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class DialogService {
+  public projectCreatedSource = new Subject<void>();
+  projectCreated$ = this.projectCreatedSource.asObservable(); 
   private overlay = inject(Overlay);
   private overlayRef: OverlayRef | null = null;
 
+  emitProjectCreated() {
+    this.projectCreatedSource.next();
+  }
   openDialog() {
     if (this.overlayRef) return;
 

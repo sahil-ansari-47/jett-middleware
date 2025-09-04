@@ -1,13 +1,13 @@
 <!-- Backdrop -->
 @if(drawer.isOpen()){
 <div
-  class="fixed inset-0 bg-black/40 lg:hidden z-40"
+  class="fixed inset-0 bg-black/40 lg:hidden z-3"
   (click)="drawer.close()"
 ></div>
 }
 <!-- Drawer -->
 <aside
-  class="hidden fixed left-0 top-0 h-full w-80 bg-neutral-300 border-r border-gray-200 px-4 py-5 md:flex flex-col z-50 transition-transform duration-300"
+  class="hidden fixed left-0 top-0 h-full w-80 bg-neutral-300 border-r border-gray-200 px-4 py-5 md:flex flex-col z-4 transition-transform duration-300"
   [ngClass]="{
     'translate-x-0': drawer.isOpen(),
     '-translate-x-full': !drawer.isOpen()
@@ -24,7 +24,7 @@
       <img src="/Logo.png" alt="" class="size-10" />
       <div class="-translate-y-1">
         <div class="font-semibold leading-tight">Jett</div>
-        <div class="text-xs text-gray-500">Ship with jett</div>
+        <div class="text-xs text-gray-500">Deploy with jett</div>
       </div>
     </div>
     <img
@@ -58,7 +58,7 @@
       <span class="flex-1">Projects</span>
       <span
         class="ml-auto inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-gray-100 px-2 text-xs font-medium text-gray-700"
-        >4</span
+        >{{ userprojects }}</span
       >
     </a>
     <a
@@ -72,7 +72,7 @@
       <span class="flex-1">Community</span>
       <span
         class="ml-auto inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-gray-100 px-2 text-xs font-medium text-gray-700"
-        >5</span
+        >{{communityprojects}}</span
       >
     </a>
     <a
@@ -87,20 +87,24 @@
   </nav>
 
   <div class="mt-auto pt-6">
-    <!-- <a
-      href="#"
-      class="group flex items-center gap-3 rounded-2xl px-3 py-2 hover:bg-gray-100"
+    <button
+      (click)="logout()"
+      class="group w-full cursor-pointer flex items-center gap-3 rounded-2xl px-3 py-2 hover:bg-gray-100 text-gray-800"
     >
-      <span
+      <!-- <span
         class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-gray-700 shadow-sm ring-1 ring-gray-200"
-      >
-        <img src="/icons/settings.svg" alt="" class="size-5" />
-      </span>
-      <span class="flex-1">Settings</span>
-    </a> -->
+      > -->
+        <img src="/icons/logout.svg" alt="" class="size-8" />
+      <!-- </span> -->
+      <span class="flex-1 text-lg text-left">Logout</span>
+    </button>
 
     <div class="mt-4 flex items-center gap-3 rounded-2xl px-3 py-2">
-      <img src="{{ user.user.avatar }}" alt="" class="h-8 w-8 rounded-full" />
+      <img
+        [src]="user.user.avatar ? user.user.avatar : '/icons/avatar.svg'"
+        alt=""
+        class="h-8 w-8 rounded-full"
+      />
       <div class="text-lg font-semibold text-gray-600">
         {{ user.user.name }}
       </div>

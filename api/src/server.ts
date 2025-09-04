@@ -121,7 +121,7 @@ app.get("/api/logout", (req, res) => {
 });
 
 app.post("/api/create-project", async (req, res) => {
-  console.log(req.body);
+  console.log("create project hit", req.body);
   let repoUrl: string = req.body.repoUrl;
   const deploy_id: string = req.body.deploy_id;
   repoUrl = repoUrl.trim().slice(19);
@@ -138,11 +138,13 @@ app.post("/api/create-project", async (req, res) => {
   ).then((res) => res.json());
   const last_commit_message = commit_desc.commit.commit.message;
   const last_commit_datetime = commit_desc.commit.commit.author.date;
-  const user: any = await User.findOne({ name: username }).exec();
+  const user: any = await User.findOne({ username: username }).exec();
   const project = new Project({
     project_name,
     repo_link,
     branch_name,
+    user_id: user?._id,
+    username: username,
     last_commit_message,
     last_commit_datetime,
     status: "uploaded",
@@ -152,21 +154,26 @@ app.post("/api/create-project", async (req, res) => {
   return res.status(200).json({ message: "Project created successfully" });
 });
 
-app.patch("/api/update-status", async (req, res) => {
-  const deploy_id = req.body.deploy_id;
-  const response = await fetch(
-    `https://jett-upload-service.onrender.com/status?id=${deploy_id}`
-  ).then((res) => res.json() as unknown as { status: string; deployed_url: string });
-  console.log(response);
-  const { status, deployed_url } = response;
-  await Project.findOneAndUpdate(
-    { deploy_id: deploy_id },
-    {
-      status: status,
-      deployed_url: status === "deployed" ? deployed_url : null,
-    }
-  );
-});
+  app.patch("/api/update-status", async (req, res) => {
+    const deploy_id = req.body.deploy_id;
+    const response = await fetch(
+      `https://jett-upload-service.onrender.com/status?id=${deploy_id}`
+    ).then((res) => res.json() as any);
+    console.log(response);
+    const status: string = response.status;
+    const deployed_url: string = response.url;
+    await Project.findOneAndUpdate(
+      { deploy_id: deploy_id },
+      { $set: { status: status, deployed_url: deployed_url } }
+    ).exec();
+    return res.status(200).json({status: status, deployed_url: deployed_url});
+  });
+
+// app.get("/api/projects/:deploy_id", async (req, res) => {
+//   const deploy_id = req.params.deploy_id;
+//   const project = await Project.findOne({ deploy_id: deploy_id }).exec();
+//   return res.status(200).json(project);
+// });
 
 app.get("/api/projects", async (req, res) => {
   const projects = await Project.find().exec();

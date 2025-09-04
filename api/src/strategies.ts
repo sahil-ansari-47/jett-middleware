@@ -31,16 +31,26 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const existingUser = await User.findOne({
-          provider: "google",
-          providerId: profile.id,
+        let existingUser = await User.findOne({
+          email: profile.emails?.[0]?.value,
         });
 
-        if (existingUser) return done(null, existingUser);
+        if (existingUser) {
+          if (!existingUser.providers.includes("google")) {
+            existingUser.providers.push("google");
+          }
+          if (!existingUser.providerIds.includes(profile.id)) {
+            existingUser.providerIds.push(profile.id);
+          }
+          if (profile.displayName) existingUser.name = profile.displayName;
+          if (profile.photos?.[0]?.value) existingUser.avatar = profile.photos[0].value;
+          await existingUser.save();
+          return done(null, existingUser);
+        }
 
         const newUser = await User.create({
-          provider: "google",
-          providerId: profile.id,
+          providers: ["google"],
+          providerIds: [profile.id],
           name: profile.displayName,
           email: profile.emails?.[0]?.value,
           avatar: profile.photos?.[0]?.value,
@@ -65,26 +75,41 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const githubProfile = profile as any;
-        const user = await User.findOne({
-          provider: "github",
-          providerId: githubProfile.id,
-        });
+
+        // Find by providerId first
+        let user = await User.findOne({ providerIds: githubProfile.id });
 
         if (user) {
           // Update user info
-          user.name = githubProfile.username;
+          user.name = githubProfile.username || user.name;
           user.email = githubProfile.emails?.[0]?.value || user.email;
           user.avatar = githubProfile.photos?.[0]?.value || user.avatar;
-          user.accessToken = accessToken; // always update token
+          user.accessToken = accessToken;
           await user.save();
 
           return done(null, user);
         }
 
+        // Or link by email if account already exists
+        let existing = await User.findOne({
+          email: githubProfile.emails?.[0]?.value,
+        });
+
+        if (existing) {
+          existing.providers.push("github");
+          existing.providerIds.push(githubProfile.id);
+          existing.avatar = githubProfile.photos?.[0]?.value || existing.avatar;
+          existing.accessToken = accessToken;
+          await existing.save();
+
+          return done(null, existing);
+        }
+
+        // Otherwise create new
         const newUser = await User.create({
-          provider: "github",
-          providerId: githubProfile.id,
-          name: githubProfile.username,
+          providers: ["github"],
+          providerIds: [githubProfile.id],
+          username: githubProfile.username,
           email: githubProfile.emails?.[0]?.value,
           avatar: githubProfile.photos?.[0]?.value,
           accessToken,

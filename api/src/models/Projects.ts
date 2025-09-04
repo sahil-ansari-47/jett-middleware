@@ -5,6 +5,7 @@ export interface IProject extends Document {
   deploy_id: string;
   project_name: string;
   user_id?: Types.ObjectId;
+  username: string;
   status: 'uploaded' | 'building' | 'deployed'| 'failed';
   repo_link: string;
   branch_name: string;
@@ -17,7 +18,8 @@ export interface IProject extends Document {
 const ProjectSchema = new Schema<IProject>({
   project_name: { type: String, required: true },
   deploy_id: { type: String, required: true },
-  user_id: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+  user_id: { type: Schema.Types.ObjectId, ref: 'User' },
+  username: { type: String, required: true },
   status: { type: String, enum: ['uploaded', 'building', 'deployed', 'failed'], default: 'failed' },
   repo_link: { type: String, required: true },
   branch_name: { type: String, required: true },

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@angular/cdk/overlay-prebuilt.css";
+/* @import 'ngx-toastr/ngx-toastr.css'; */
 
 @theme {
   --color-p1: #9368b7;
@@ -61,6 +62,10 @@
     animation: moveVertical 30s ease-in-out infinite;
     will-change: transform;
   }
+  .toast-loader {
+    @apply bg-amber-500 h-1 w-full rounded-2xl absolute bottom-0 left-0;
+    animation: loader 3s linear forwards;
+  }
   .moveHorizontal {
     animation: moveHorizontal 30s ease-in-out infinite;
     will-change: transform;
@@ -97,6 +102,14 @@
     display: none;
   }
 }
+@keyframes loader {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
 @keyframes moveInCircle {
   0% {
     transform: rotate(0deg);
@@ -128,6 +141,6 @@
   }
 }
 
-html{
+html {
   scroll-behavior: smooth;
 }

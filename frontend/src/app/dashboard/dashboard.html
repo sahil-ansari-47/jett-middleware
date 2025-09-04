@@ -1,79 +1,24 @@
-<!-- <div
-  class="text-2xl text-white min-h-[90vh] bg-black p-20 pb-30 flex flex-col gap-10"
->
-  <div class="ml-[15vw] flex flex-col gap-5">
-    <h1
-      class="font-bold text-transparent w-fit text-6xl bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text"
-    >
-      Hi, {{ user.name.split(" ")[0] }}
-    </h1>
-    <h2 class="text-2xl">Welcome to your dashboard!</h2>
-  </div>
-  <h2 class="text-white font-semibold text-2xl mb-4">Your Projects</h2>
-  <div class="grid grid-cols-3 gap-6 items-center">
-    
-    <div
-      class="bg-white rounded-lg h-40 p-4 flex items-center shadow-md justify-center font-bold text-xl cursor-pointer text-black"
-      (click)="createProject()"
-    >
-      + New Project
-    </div>
-
-    @for (project of UserProjects; track project.deploy_id) {
-    <app-card [project]="project">
-      <h3 class="font-semibold">{{ project.project_name }}</h3>
-      <div class="flex gap-2 items-center">
-        <div
-          class="w-4 h-4 rounded-full"
-          [ngClass]="{
-            'bg-yellow-400': project.status === 'uploaded',
-            'bg-orange-400': project.status === 'building',
-            'bg-green-400': project.status === 'deployed',
-            'bg-red-400': project.status === 'failed',
-            'animate-pulse':
-              project.status === 'uploaded' || project.status === 'building'
-          }"
-        ></div>
-        <div class="text-sm -translate-y-0.5">
-          @switch (project.status) { @case ('uploaded') { Uploaded } @case
-          ('building') { Building... } @case ('deployed') { Deployed! } @default
-          { Failed! } }
-        </div>
-      </div>
-      <p class="text-sm text-gray-500">{{ project?.deployed_url }}</p>
-      <p class="text-sm">Last commit: {{ project.last_commit_message }}</p>
-      <p class="text-xs text-gray-400">
-        {{ project.last_commit_datetime }} | {{ project.branch_name }}
-      </p>
-    </app-card>
-    }
-  </div>
-
-  <h2 class="text-white font-semibold text-2xl mt-8 mb-4">
-    Community Projects
-  </h2>
-  <div class="grid grid-cols-3 gap-6">
-    @for(project of CommunityProjects ; track project.deploy_id){
-    <app-card class="p-4">
-      <h3 class="font-semibold">{{ project.project_name }}</h3>
-      <p class="text-sm text-gray-500">{{ project.deployed_url }}</p>
-    </app-card>
-    }
-  </div>
-</div> -->
-<app-drawer></app-drawer>
+<app-drawer [userprojects]="UserProjects.length" [communityprojects]="CommunityProjects.length"></app-drawer>
+<app-mutli-step-loader
+  [loadingStates]="loadingStates"
+  [duration]="2000"
+  [loop]="false"
+></app-mutli-step-loader>
+<app-toastr></app-toastr>
 <div
-  class="flex min-h-screen bg-p5 text-white transition-all duration-300 pb-20"
+  #heroSection
+  class="relative flex min-h-screen text-white transition-all duration-300 pb-20 bg-radial from-neutral-500 to-p5/50"
   [ngClass]="{
     'lg:w-[calc(100vw-320px)] lg:translate-x-80': drawer.isOpen(),
     'w-screen': !drawer.isOpen()
   }"
 >
+  <img src="/Logolarge.png" alt="" class="absolute top-0 left-0 blur-sm" />
   <div class="flex min-w-0 flex-1 flex-col">
-    <header
+    <!-- <header
       class="border-b border-gray-200 bg-gradient-to-l from-neutral-500 to-neutral-300"
-    >
-      <div class="flex h-16 items-center justify-between px-6">
+    > -->
+    <!-- <div class="flex h-16 items-center justify-between px-6">
         <div class="flex items-center gap-3">
           @if(!(this.drawer.isOpen())){
           <img
@@ -88,21 +33,12 @@
             Jett Dashboard
           </h1>
         </div>
-        <button
-          class="h-10 w-10 rounded-full border border-gray-300 bg-white"
-        ></button>
-      </div>
-    </header>
-
-    <main class="mx-auto w-full max-w-7xl px-6 py-6">
-      <div class="flex items-center justify-end">
+        <div class="flex items-center justify-end">
           <button
             class="inline-flex items-center cursor-pointer gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-medium text-black shadow-sm hover:bg-neutral-300"
             (click)="createProject()"
           >
-            <span
-              class="flex h-6 w-6 items-center justify-center"
-            >
+            <span class="flex h-6 w-6 items-center justify-center">
               <svg
                 class="h-4 w-4"
                 viewBox="0 0 24 24"
@@ -120,44 +56,94 @@
             New Project
           </button>
         </div>
-
-      <section
-        class="mt-6 rounded-3xl text-white shadow-lg md:p-12"
-      >
-        <h2
-          class="mt-4 text-balance text-3xl font-bold leading-tight md:text-5xl text-p6"
-        >
-          Hello {{ user.name }}, welcome to Jett
-        </h2>
-        <p class="mt-4 max-w-3xl text-pretty text-white/90 md:text-lg">
-          Unleash your creativity with our comprehensive suite of professional
-          design tools and resources.
-        </p>
-        <div class="mt-6 flex flex-wrap gap-3">
-          <a
-            href="#"
-            class="inline-flex items-center rounded-2xl bg-white px-5 py-2 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-100"
-            >Explore Plans</a
-          >
-          <a
-            href="#"
-            class="inline-flex items-center rounded-2xl bg-black/20 px-5 py-2 text-sm font-medium text-white ring-1 ring-white/40 hover:bg-white/10"
-            >Take a Tour</a
-          >
-        </div>
-      </section>
-
-      <!-- <h3 class="mt-8 text-2xl font-semibold">Recent Apps</h3>
-      <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <div class="h-36 rounded-2xl border border-gray-200 bg-white"></div>
-        <div class="h-36 rounded-2xl border border-gray-200 bg-white"></div>
-        <div class="h-36 rounded-2xl border border-gray-200 bg-white"></div>
       </div> -->
+    <!-- </header> -->
 
+    <main class="w-full pb-6">
+      <section class="min-h-100 overflow-hidden text-white shadow-lg w-full">
+        <div class="bg-black flex h-16 items-center justify-between px-6">
+          <div class="flex items-center gap-3">
+            @if(!(this.drawer.isOpen())){
+            <img
+              (click)="drawer.open()"
+              src="/icons/sidebar.svg"
+              alt=""
+              class="hidden md:block cursor-pointer size-8"
+            />
+            }
+            <img src="/Logo.png" alt="" class="size-8 block md:hidden" />
+            <h1 class="text-lg text-white font-semibold tracking-tight">
+              Jett Dashboard
+            </h1>
+          </div>
+          <div class="flex items-center justify-end">
+            <button
+              class="inline-flex items-center cursor-pointer gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-medium text-black shadow-sm hover:bg-neutral-300"
+              (click)="createProject()"
+            >
+              <span class="flex h-6 w-6 items-center justify-center">
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 5v14M5 12h14"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </span>
+              New Project
+            </button>
+          </div>
+        </div>
+        <app-wavy-hero
+          [containerRef]="heroSection"
+          [colors]="['#38bdf8', '#818cf8', '#c084fc', '#e879f9', '#22d3ee']"
+          [waveWidth]="50"
+          [blur]="10"
+          speed="fast"
+          [waveOpacity]="0.5"
+          [containerClass]="'h-full'"
+          [contentClass]="''"
+        >
+          <div
+            class="flex flex-col gap-2 h-full bg-transparent justify-center py-10 w-full"
+          >
+            <h2
+              class="mt-4 text-balance text-3xl font-bold leading-tight md:text-5xl text-p6"
+            >
+              Hello {{ user?.name || user?.username }}, welcome to Jett
+            </h2>
+            <p class="mt-4 max-w-3xl text-pretty text-white/90 md:text-lg">
+              Unleash your creativity with our comprehensive suite of
+              professional design tools and resources.
+            </p>
+            <div class="mt-6 flex flex-wrap gap-3">
+              <button
+                (click)="createProject()"
+                class="inline-flex cursor-pointer items-center rounded-2xl bg-white px-5 py-2 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-100"
+              >
+                Start Deploying
+              </button>
+              <a
+                [routerLink]="['/dashboard']"
+                fragment="community"
+                class="inline-flex items-center rounded-2xl bg-black/20 px-5 py-2 text-sm font-medium text-white ring-1 ring-white/40 hover:bg-white/10"
+              >
+                Our Community
+              </a>
+            </div>
+          </div>
+        </app-wavy-hero>
+      </section>
       <section
         id="projects"
         aria-labelledby="recent-apps-title"
-        class="px-2 pt-10"
+        class="px-8 pt-10 mx-auto"
       >
         <header class="mb-4">
           <h2
@@ -176,9 +162,7 @@
             class="inline-flex items-center cursor-pointer gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-medium text-black shadow-sm hover:bg-neutral-300"
             (click)="createProject()"
           >
-            <span
-              class="flex h-6 w-6 items-center justify-center"
-            >
+            <span class="flex h-6 w-6 items-center justify-center">
               <svg
                 class="h-4 w-4"
                 viewBox="0 0 24 24"
@@ -201,136 +185,158 @@
           class="media grid gap-6 grid-cols-1 sm680:grid-cols-2 lg:grid-cols-3"
         >
           @for(project of UserProjects ; track project.deploy_id){
-          <article
-            class="group rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm transition-shadow hover:shadow-md"
-            aria-label="Project card"
-          >
-            <header class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="min-w-0">
-                  <h3
-                    class="text-base md:text-lg font-semibold text-gray-900 text-pretty"
-                  >
-                    {{ project.project_name }}
-                  </h3>
-
-                  <p class="mt-0.5 text-xs md:text-sm text-black truncate">
-                    https://example.com
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                class="shrink-0 inline-flex items-center rounded-full border border-gray-200 p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                aria-label="Edit project name"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="size-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                >
-                  <path d="M12 20h9"></path>
-                  <path
-                    d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
-                  ></path>
-                </svg>
-              </button>
-            </header>
-
-            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-              <div class="flex items-start gap-3">
-                <div
-                  class="mt-0.5 rounded-lg bg-gray-100 text-gray-600 p-2"
-                  aria-hidden="true"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                  >
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M3 12h6M15 12h6"></path>
-                  </svg>
-                </div>
-                <div class="min-w-0">
-                  <p class="text-xs font-medium text-gray-500">Last commit</p>
-                  <p class="text-sm text-gray-700 line-clamp-2">
-                    {{ project.last_commit_message }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-1">
-                <div
-                  class="mt-0.5 rounded-lg bg-gray-100 text-gray-600 p-2"
-                  aria-hidden="true"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="size-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                  >
-                    <path d="M6 3v8a4 4 0 0 0 4 4h5"></path>
-                    <circle cx="6" cy="3" r="2"></circle>
-                    <circle cx="10" cy="15" r="2"></circle>
-                    <circle cx="15" cy="15" r="2"></circle>
-                  </svg>
-                </div>
-                <div class="w-full">
-                  <div
-                    class="inline-flex items-center justify-start gap-2 w-full bg-white px-1 py-1.5 text-xs md:text-sm text-gray-800 font-medium"
-                  >
-                    <span
-                      class="font-mono w-24 flex items-center justify-around"
+          <app-card [project]="project">
+            <article
+              class="group rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm transition-shadow hover:shadow-md"
+              aria-label="Project card"
+            >
+              <header class="flex items-start justify-between gap-3">
+                <div class="flex flex-col items-start gap-2">
+                  <div class="min-w-0">
+                    <a
+                      href="{{ project.deployed_url }}"
+                      target="_blank"
+                      class="text-base md:text-lg font-semibold text-gray-900 text-pretty"
                     >
-                      {{ project.branch_name }}
-                      <div class="bg-gray-400 h-5 w-1 rounded-4xl"></div>
-                      {{ project.last_commit_datetime }}
-                    </span>
+                      {{ project.project_name }}-{{ project.deploy_id }}
+                    </a>
+                  </div>
+                  <div class="flex gap-2 items-center">
+                    <div
+                      class="w-4 h-4 rounded-full"
+                      [ngClass]="{
+                        'bg-yellow-400': project.status === 'uploaded',
+                        'bg-orange-600': project.status === 'building',
+                        'bg-green-400': project.status === 'deployed',
+                        'bg-red-400': project.status === 'failed',
+                        'animate-pulse':
+                          project.status === 'uploaded' ||
+                          project.status === 'building'
+                      }"
+                    ></div>
+                    <div class="text-sm -translate-y-0.5 text-black">
+                      @switch (project.status) { @case ('uploaded') { Uploaded }
+                      @case ('building') { Building... } @case ('deployed') {
+                      Deployed! } @case ('failed') { Failed! } @default {
+                      Unknown } }
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  class="shrink-0 inline-flex items-center rounded-full border border-gray-200 p-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  aria-label="Edit project name"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="size-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                  >
+                    <path d="M12 20h9"></path>
+                    <path
+                      d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                    ></path>
+                  </svg>
+                </button>
+              </header>
+
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                <div class="flex items-start gap-3">
+                  <div
+                    class="mt-0.5 rounded-lg bg-gray-100 text-gray-600 p-2"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="size-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                    >
+                      <circle cx="12" cy="12" r="3"></circle>
+                      <path d="M3 12h6M15 12h6"></path>
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <p class="text-xs font-medium text-gray-500">Last commit</p>
+                    <p class="text-sm text-gray-700 line-clamp-2">
+                      {{ project.last_commit_message }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-1">
+                  <div
+                    class="mt-0.5 rounded-lg bg-gray-100 text-gray-600 p-2 w-[32px]"
+                    aria-hidden="true"
+                  >
+                    <!-- <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="size-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.75"
+                    >
+                      <path d="M6 3v8a4 4 0 0 0 4 4h5"></path>
+                      <circle cx="6" cy="3" r="2"></circle>
+                      <circle cx="10" cy="15" r="2"></circle>
+                      <circle cx="15" cy="15" r="2"></circle>
+                    </svg> -->
+                    <img src="/icons/branch.svg" alt="" class="size-4" />
+                  </div>
+                  <div class="w-full">
+                    <div
+                      class="inline-flex items-center justify-start gap-2 w-full bg-white px-1 py-1.5 text-xs md:text-sm text-gray-800 font-medium"
+                    >
+                      <span
+                        class="font-mono w-24 flex items-center justify-around"
+                      >
+                        {{ project.branch_name }}
+                        <div class="bg-gray-400 h-5 w-1 rounded-4xl"></div>
+                        {{ project.last_commit_datetime }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <footer
-              class="mt-5 flex flex-wrap items-center justify-between gap-3"
-            >
-              <div class="flex items-center gap-2">
-                <a
-                  class="inline-flex items-center justify-center rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
-                  href="{{ project.repo_link }}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View repo
-                </a>
-                <a
-                  href="{{ project.deployed_url }}"
-                  target="_blank"
-                  class="inline-flex items-center justify-center rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-                >
-                  Open
-                </a>
-              </div>
-            </footer>
-          </article>
+              <footer
+                class="mt-5 flex flex-wrap items-center justify-between gap-3"
+              >
+                <div class="flex items-center gap-2">
+                  <a
+                    class="inline-flex items-center justify-center rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100"
+                    href="{{ project.repo_link }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View repo
+                  </a>
+                  <a
+                    href="{{ project.deployed_url }}"
+                    target="_blank"
+                    class="inline-flex items-center justify-center rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  >
+                    Open
+                  </a>
+                </div>
+              </footer>
+            </article>
+          </app-card>
           }
         </div>
       </section>
+
       <section
         id="community"
         aria-labelledby="community-title"
-        class="px-2 pt-10"
+        class="px-8 pt-10 mx-auto"
       >
         <header class="mb-4">
           <h2
@@ -353,7 +359,6 @@
                 alt=""
                 class="h-full w-full object-cover"
               />
-
               <ng-template #placeholder>
                 <div class="absolute inset-0 flex items-center justify-center">
                   <svg
@@ -416,12 +421,15 @@
 
             <div class="bg-white flex justify-between items-center pr-6">
               <div class="px-5 py-4 md:px-6 md:py-5">
-                <h3
-                  class="text-base md:text-lg font-semibold leading-tight text-neutral-900 text-pretty"
+                <a
+                  href="project.deployed_url"
+                  class="text-base md:text-lg font-semibold leading-tight text-neutral-900 hover:underline text-pretty"
                 >
                   {{ project.project_name }}
-                </h3>
-                <p class="mt-1 text-sm text-neutral-500">by pussy</p>
+                </a>
+                <p class="mt-1 text-sm text-neutral-500">
+                  by {{ project.username }}
+                </p>
               </div>
               <time class="text-sm text-neutral-500">{{
                 project.createdAtString

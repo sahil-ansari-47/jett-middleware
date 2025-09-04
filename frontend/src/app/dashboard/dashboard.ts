@@ -1,46 +1,81 @@
-import { Component, inject, PLATFORM_ID } from '@angular/core';
-import { Card } from '../components/card/card';
-import { CommonModule, formatDate, isPlatformBrowser } from '@angular/common';
+import { Component, inject, PLATFORM_ID, ViewChild } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { UserService } from '../services/user';
 import { environment } from '../../environments/environment';
+import { MultiStepLoaderComponent } from '../components/multi-step-loader/multi-step-loader';
 import { DialogService } from '../services/dialog';
 import { DrawerComponent } from '../components/drawer/drawer';
 import { DrawerService } from '../services/drawer';
-interface Project {
-  deploy_id: string;
-  project_name: string;
-  status: string;
-  user_id: string;
-  deployed_url: string;
-  repo_link: string;
-  last_commit_message: string;
-  last_commit_datetime: string;
-  createdAt: Date;
-  createdAtString: string;
-  branch_name: string;
-}
-
+import { LoadingService } from '../services/loading-service';
+import { WavyHeroComponent } from '../components/wavyhero/wavyhero';
+import { Card } from '../components/card/card';
+import { Project } from '../models/project.model';
+import { ToasterService } from '../services/toastr';
+import { ToastrComponent } from '../components/toastr/toastr';
+import { RouterLink } from '@angular/router';
+// import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, DrawerComponent],
+  imports: [
+    CommonModule,
+    DrawerComponent,
+    MultiStepLoaderComponent,
+    WavyHeroComponent,
+    Card,
+    ToastrComponent,
+    RouterLink
+  ],
   templateUrl: './dashboard.html',
 })
 export class Dashboard {
+  public loading = inject(LoadingService);
   private dialog = inject(DialogService);
   private platformId = inject(PLATFORM_ID);
   private apiUrl = environment.apiUrl;
   private service = inject(UserService);
+  private toasterService = inject(ToasterService);
   public user = this.service.user;
   public UserProjects: Project[] = [];
   public CommunityProjects: Project[] = [];
-  constructor(public userService: UserService, public drawer: DrawerService) {
+  constructor(
+    public userService: UserService,
+    public drawer: DrawerService,
+    private dialogservice: DialogService,
+    // private toasterService: ToasterService
+
+  ) {
     // Only fetch user if NOT server-side
     if (isPlatformBrowser(this.platformId)) {
       this.fetchCurrentUser();
       this.fetchProjects();
     }
+    this.dialogservice.projectCreated$.subscribe(() => {
+      this.UserProjects = [];
+      this.fetchProjects();
+    });
+  }
+  
+  showToast(msg:string, type: 'uploaded' | 'building' | 'deployed' | 'failed') {
+    console.log(msg, type);
+    this.toasterService.success(msg, type);
   }
 
+  // showSuccess() {
+  //   console.log('success');
+  //   this.toastr.success('Project deployed successfully!', 'Success');
+  // }
+
+  // showError() {
+  //   this.toastr.error('Deployment failed!', 'Error');
+  // }
+
+  loadingStates = [
+    { text: 'Establishing Connection...' },
+    { text: 'Fetching Project' },
+    { text: 'Cloning Repository' },
+    { text: 'Almost There!' },
+    { text: 'Uploading to Cloud' },
+  ];
   fetchCurrentUser() {
     fetch(`${this.apiUrl}/api/auth/me`, { credentials: 'include' })
       .then((res) => res.json())
@@ -50,14 +85,14 @@ export class Dashboard {
         }
       });
   }
-  private getRelativeTime(date: string | Date  ): string {
+  private getRelativeTime(date: string | Date): string {
     const now = new Date();
-    let diffMs: number=0;
+    let diffMs: number = 0;
     if (!(date instanceof Date)) {
       console.log('string');
-      const datedate = new Date(date);  
+      const datedate = new Date(date);
       diffMs = now.getTime() - datedate.getTime();
-    }else{
+    } else {
       console.log('date');
       diffMs = now.getTime() - date.getTime();
     }
@@ -80,28 +115,30 @@ export class Dashboard {
 
     // fallback: show formatted date
     return new Date(date).toLocaleDateString();
-}
-  createProject(){
+  }
+  createProject() {
     this.dialog.openNewProject();
   }
 
   fetchProjects() {
     fetch(`${this.apiUrl}/api/projects`, { credentials: 'include' })
       .then((res) => res.json())
-      .then((projects : Project[]) => {
+      .then((projects: Project[]) => {
         console.log(projects);
-        try{
-          projects.forEach(project => {
-            if(project.user_id === this.user._id){
-              project.last_commit_datetime = this.getRelativeTime(project.last_commit_datetime);
+        try {
+          projects.forEach((project) => {
+            if (project.user_id === this.user._id) {
+              project.last_commit_datetime = this.getRelativeTime(
+                project.last_commit_datetime
+              );
               this.UserProjects.push(project);
-            }else{
+            } else {
               console.log(project);
               project.createdAtString = this.getRelativeTime(project.createdAt);
               this.CommunityProjects.push(project);
             }
           });
-        }catch(e){
+        } catch (e) {
           console.log(e);
         }
       });
