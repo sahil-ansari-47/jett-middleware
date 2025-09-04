@@ -18,7 +18,7 @@ const BACKEND_URL = process.env.BACKEND_URL;
 const PORT = process.env.PORT || 3000;
 
 // connect once on cold start
-// connectToDatabase( process.env.MONGODB_URI || "" );
+connectToDatabase( process.env.MONGODB_URI || "" );
 
 app.use(
   cors({
