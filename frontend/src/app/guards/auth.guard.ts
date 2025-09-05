@@ -17,8 +17,10 @@ export const authGuard: CanActivateFn = async() => {
     const user = await res.json();
 
     if (user) {
+      console.log('authGuard user');
       return true;
     } else {
+      console.log('authGuard no user');
       router.navigate(['/']);
       return false;
     }

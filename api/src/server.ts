@@ -61,9 +61,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/auth/me", async (req, res) => {
+  console.log('auth me hit');
   if (!req.user) return res.json(null);
   console.log(req.user);
-  console.log('auth me hit');
   try {
     console.log(req.user);
     const user = await User.findById(req.user._id).exec();
