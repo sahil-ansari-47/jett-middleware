@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
 export const authGuard: CanActivateFn = async() => {
   const router = inject(Router);
 
-  const apiUrl = 'https://jett-middleware.vercel.app';
+  const apiUrl = 'https://jett-middleware.onrender.com';
 
   try {
     const res = await fetch(`${apiUrl}/api/auth/me`, {

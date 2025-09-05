@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://jett-middleware.vercel.app",
+    "target": "https://jett-middleware.onrender.com",
     "secure": true,
     "changeOrigin": true,
     "cookieDomainRewrite": "localhost"
