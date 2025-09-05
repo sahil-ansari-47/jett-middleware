@@ -13,7 +13,7 @@ import { environment } from '../../../environments/environment';
 export class Header {
   private dialog = inject(DialogService);
   private platformId = inject(PLATFORM_ID);
-  private apiUrl = environment.apiUrl;
+  private apiUrl = 'https://jett-middleware.vercel.app';
 
   constructor(public userService: UserService) {
     // Only fetch user if NOT server-side

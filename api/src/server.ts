@@ -18,7 +18,6 @@ const BACKEND_URL = process.env.BACKEND_URL;
 const PORT = process.env.PORT || 3000;
 
 // connect once on cold start
-connectToDatabase( process.env.MONGODB_URI || "" );
 
 app.use(
   cors({
@@ -35,8 +34,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: false, //changes required
+      sameSite: "lax", //changes required
     },
   })
 );
@@ -82,6 +81,7 @@ app.get(
   "/api/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
+    console.log("Successfully authenticated");
     res.redirect(`${FRONTEND_URL}/dashboard`);
   }
 );
@@ -97,6 +97,7 @@ app.get(
   "/api/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/" }),
   async (req, res) => {
+    console.log("Successfully authenticated");
     res.redirect(`${FRONTEND_URL}/dashboard`);
   }
 );
@@ -112,6 +113,7 @@ app.get("/api/github/repos", async (req, res) => {
     res.status(500).json({ error: (err as Error).message });
   }
 });
+
 app.get("/api/logout", (req, res) => {
   req.logout(() => {
     res.clearCookie("connect.sid");
@@ -173,14 +175,8 @@ app.get("/api/projects", async (req, res) => {
   return res.status(200).json(projects);
 });
 
-// const startServer = async () => {
-//   await connectToDatabase(process.env.MONGODB_URI || "");
-//   app.listen(PORT, () =>
-//     console.log(`Server running on http://localhost:${PORT}`)
-//   );
-// };
-export default app;
+connectToDatabase(process.env.MONGODB_URI || "");
 
-// if (process.env.NODE_ENV !== "production") {
-//   startServer();
-// }
+app.listen(PORT, () =>
+  console.log(`Server running on http://localhost:${PORT}`)
+);

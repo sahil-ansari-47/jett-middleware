@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { interval, Subscription } from 'rxjs';
 import { Project } from '../../models/project.model';
 import { ToasterService } from '../../services/toastr';
-
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-card',
   templateUrl: './card.html',
@@ -18,7 +18,7 @@ import { ToasterService } from '../../services/toastr';
 export class Card implements OnChanges, OnDestroy {
   @Input() project!: Project; // you can strongly type if you have an interface
   private pollSub?: Subscription;
-  private apiUrl = 'http://localhost:3000/api/update-status'; // 🔹 change to your backend
+  private apiUrl = `${environment.apiUrl}/api/update-status`; // 🔹 change to your backend
   private toasterService = inject(ToasterService)
   private counts = {
     'uploaded': 0,

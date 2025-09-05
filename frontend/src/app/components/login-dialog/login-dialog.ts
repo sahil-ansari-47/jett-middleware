@@ -10,9 +10,9 @@ import { environment } from '../../../environments/environment';
 })
 export class LoginDialog {
   private dialog = inject(DialogService);
-  private apiUrl = environment.apiUrl;
+  private apiUrl = 'https://jett-middleware.vercel.app';
   login(provider: 'google' | 'github') {
-    window.location.href = `${this.apiUrl}/api/auth/${provider}`;
+    window.location.href = `https://jett-middleware.vercel.app/api/auth/${provider}`;
   }
 
   close(){
