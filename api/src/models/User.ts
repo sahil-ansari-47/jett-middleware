@@ -3,7 +3,6 @@ import { Schema, Document, Types, Model, model, models } from "mongoose";
 export interface IUser extends Document {
   _id: Types.ObjectId;
   providers: Array<string>;
-  providerIds: Array<string>;
   name: string;
   username: string;
   email: string;
@@ -13,7 +12,6 @@ export interface IUser extends Document {
 
 const UserSchema = new Schema<IUser>({
   providers: { type: [String], required: true },
-  providerIds: { type: [String], required: true},
   username: String,
   name: String,
   email: { type: String, required: true, unique: true },
