@@ -7,14 +7,14 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY api/package*.json ./
+COPY package*.json ./
 
 # Install deps (no dev deps for production)
 RUN npm install
 
 # Copy tsconfig + source
-COPY api/tsconfig.json ./
-COPY api/src ./src
+COPY tsconfig.json ./
+COPY src ./src
 
 # Compile TypeScript -> JavaScript
 RUN npx tsc
