@@ -249,12 +249,6 @@ app.get("/api/github/repos", async (req, res) => {
   }
 });
 
-app.get("/api/logout", (req, res) => {
-  req.logout(() => {
-    res.clearCookie("connect.sid");
-    res.send({ ok: true });
-  });
-});
 
 app.post("/api/create-project", async (req, res) => {
   console.log("create project hit", req.body);
@@ -316,75 +310,82 @@ app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );
 // app.get("/api/auth/me", async (req, res) => {
-//   console.log("auth me hit");
-//   if (!req.user) return res.json(null);
-//   console.log(req.user);
-//   try {
-//     console.log(req.user);
-//     const user = await User.findById(req.user._id).exec();
-//     return res.json(user);
-//   } catch (err: any) {
-//     return res.status(500).json({ error: err.message });
-//   }
-// });
-
-// // Google auth
-// app.get(
-//   "/api/auth/google",
-//   passport.authenticate("google", { scope: ["profile", "email"] })
-// );
-
-// app.get(
+  //   console.log("auth me hit");
+  //   if (!req.user) return res.json(null);
+  //   console.log(req.user);
+  //   try {
+    //     console.log(req.user);
+    //     const user = await User.findById(req.user._id).exec();
+    //     return res.json(user);
+    //   } catch (err: any) {
+      //     return res.status(500).json({ error: err.message });
+      //   }
+      // });
+      
+      // // Google auth
+      // app.get(
+        //   "/api/auth/google",
+        //   passport.authenticate("google", { scope: ["profile", "email"] })
+        // );
+        
+        // app.get(
 //   "/api/auth/github",
 //   passport.authenticate("github", {
 //     scope: ["read:user", "user:email", "repo"],
 //   })
 // );
 // app.get(
-//   "/auth/github/callback",
-//   passport.authenticate("github", { failureRedirect: "/" }),
-//   (req, res) => {
-//     // ⚡️ THIS persists user into session
-//     if (req.user) {
-//       req.login(req.user, (err) => {
-//         if (err) return res.redirect("/?error=login");
-//         res.redirect(`${FRONTEND_URL}/dashboard`);
-//       });
-//     } else {
-//       console.log("no user");
-//     }
-//   }
-// );
-// app.get(
+  //   "/auth/github/callback",
+  //   passport.authenticate("github", { failureRedirect: "/" }),
+  //   (req, res) => {
+    //     // ⚡️ THIS persists user into session
+    //     if (req.user) {
+      //       req.login(req.user, (err) => {
+        //         if (err) return res.redirect("/?error=login");
+        //         res.redirect(`${FRONTEND_URL}/dashboard`);
+        //       });
+        //     } else {
+          //       console.log("no user");
+          //     }
+          //   }
+          // );
+          // app.get(
 //   "/auth/google/callback",
 //   passport.authenticate("google", { failureRedirect: "/" }),
 //   (req, res) => {
-//     // ⚡️ THIS persists user into session
-//     if (req.user) {
-//       req.login(req.user, (err) => {
-//         if (err) return res.redirect("/?error=login");
-//         res.redirect(`${FRONTEND_URL}/dashboard`);
-//       });
-//     } else {
-//       console.log("no user");
-//     }
-//   }
-// );
-
-// app.get(
-//   "/api/auth/google/callback",
-//   passport.authenticate("google", { failureRedirect: "/" }),
-//   (req, res) => {
-//     // console.log("Successfully authenticated");
-//     // res.redirect(`${FRONTEND_URL}/dashboard`);
-//   }
-// );
-
-// app.get(
-//   "/api/auth/github/callback",
-//   passport.authenticate("github", { failureRedirect: "/" }),
-//   async (req, res) => {
-//     console.log("Successfully authenticated");
-//     res.redirect(`${FRONTEND_URL}/dashboard`);
-//   }
-// );
+  //     // ⚡️ THIS persists user into session
+  //     if (req.user) {
+    //       req.login(req.user, (err) => {
+      //         if (err) return res.redirect("/?error=login");
+      //         res.redirect(`${FRONTEND_URL}/dashboard`);
+      //       });
+      //     } else {
+        //       console.log("no user");
+        //     }
+        //   }
+        // );
+        
+        // app.get(
+          //   "/api/auth/google/callback",
+          //   passport.authenticate("google", { failureRedirect: "/" }),
+          //   (req, res) => {
+            //     // console.log("Successfully authenticated");
+            //     // res.redirect(`${FRONTEND_URL}/dashboard`);
+            //   }
+            // );
+            
+            // app.get(
+              //   "/api/auth/github/callback",
+              //   passport.authenticate("github", { failureRedirect: "/" }),
+              //   async (req, res) => {
+                //     console.log("Successfully authenticated");
+                //     res.redirect(`${FRONTEND_URL}/dashboard`);
+                //   }
+                // );
+                
+                // app.get("/api/logout", (req, res) => {
+                //   req.logout(() => {
+                //     res.clearCookie("connect.sid");
+                //     res.send({ ok: true });
+                //   });
+                // });
