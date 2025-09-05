@@ -34,8 +34,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, //changes required
-      sameSite: "lax", //changes required
+      secure: true, //changes required
+      sameSite: "none", //changes required
     },
   })
 );
