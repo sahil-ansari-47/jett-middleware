@@ -13,7 +13,7 @@ import { environment } from '../../../environments/environment';
 export class Header {
   private dialog = inject(DialogService);
   private platformId = inject(PLATFORM_ID);
-  private apiUrl = 'https://jett-middleware.onrender.com';
+  private apiUrl = environment.apiUrl;
 
   constructor(public userService: UserService) {
     // Only fetch user if NOT server-side

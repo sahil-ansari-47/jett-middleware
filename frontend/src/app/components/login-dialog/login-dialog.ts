@@ -10,7 +10,7 @@ import { environment } from '../../../environments/environment';
 })
 export class LoginDialog {
   private dialog = inject(DialogService);
-  private apiUrl = 'https://jett-middleware.onrender.com';
+  private apiUrl = environment.apiUrl;
   login(provider: 'google' | 'github') {
     window.location.href = `${this.apiUrl}/api/auth/${provider}`;
   }
