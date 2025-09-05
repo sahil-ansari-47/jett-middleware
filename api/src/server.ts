@@ -212,6 +212,15 @@ app.get("/api/auth/me", authMiddleware, async (req, res) => {
 // app.use(passport.initialize());
 // app.use(passport.session());
 
+app.post("/api/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,     // must match how you set the cookie
+    sameSite: "none", // must match how you set the cookie
+  });
+
+  res.status(200).json({ message: "Logged out successfully" });
+});
 async function getUserRepos(accessToken: string) {
   const res = await fetch("https://api.github.com/user/repos", {
     headers: {
