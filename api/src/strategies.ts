@@ -43,7 +43,8 @@ passport.use(
             existingUser.providerIds.push(profile.id);
           }
           if (profile.displayName) existingUser.name = profile.displayName;
-          if (profile.photos?.[0]?.value) existingUser.avatar = profile.photos[0].value;
+          if (profile.photos?.[0]?.value)
+            existingUser.avatar = profile.photos[0].value;
           await existingUser.save();
           return done(null, existingUser);
         }
@@ -71,7 +72,7 @@ passport.use(
       clientID: process.env.GITHUB_CLIENT_ID || "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
       callbackURL: process.env.GITHUB_CALLBACK_URL!,
-      scope: ["read:user", "user:email", "repo"]
+      scope: ["read:user", "user:email", "repo"],
     },
     async (accessToken, refreshToken, profile, done) => {
       try {

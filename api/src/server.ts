@@ -13,6 +13,8 @@ dotenv.config();
 
 const app = express();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:4200";
 const BACKEND_URL = process.env.BACKEND_URL;
 const PORT = process.env.PORT || 3000;
@@ -25,7 +27,6 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.urlencoded({ extended: true }));
 // Session setup
 app.use(
   session({
@@ -33,13 +34,11 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      httpOnly: true,
       secure: true, //changes required
-      sameSite: "lax", //changes required
+      sameSite: "none", //changes required
     },
   })
 );
-app.use(express.json());
 // Passport setup
 app.use(passport.initialize());
 app.use(passport.session());
@@ -61,7 +60,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/auth/me", async (req, res) => {
-  console.log('auth me hit');
+  console.log("auth me hit");
   if (!req.user) return res.json(null);
   console.log(req.user);
   try {
@@ -80,29 +79,60 @@ app.get(
 );
 
 app.get(
-  "/api/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/" }),
-  (req, res) => {
-    console.log("Successfully authenticated");
-    res.redirect(`${FRONTEND_URL}/dashboard`);
-  }
-);
-
-app.get(
   "/api/auth/github",
   passport.authenticate("github", {
     scope: ["read:user", "user:email", "repo"],
   })
 );
-
 app.get(
-  "/api/auth/github/callback",
+  "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/" }),
-  async (req, res) => {
-    console.log("Successfully authenticated");
-    res.redirect(`${FRONTEND_URL}/dashboard`);
+  (req, res) => {
+    // ⚡️ THIS persists user into session
+    if (req.user) {
+      req.login(req.user, (err) => {
+        if (err) return res.redirect("/?error=login");
+        res.redirect(`${FRONTEND_URL}/dashboard`);
+      });
+    } else {
+      console.log("no user");
+    }
   }
 );
+app.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/" }),
+  (req, res) => {
+    // ⚡️ THIS persists user into session
+    if (req.user) {
+      req.login(req.user, (err) => {
+        if (err) return res.redirect("/?error=login");
+        res.redirect(`${FRONTEND_URL}/dashboard`);
+      });
+    } else {
+      console.log("no user");
+    }
+  }
+);
+
+// app.get(
+//   "/api/auth/google/callback",
+//   passport.authenticate("google", { failureRedirect: "/" }),
+//   (req, res) => {
+//     // console.log("Successfully authenticated");
+//     // res.redirect(`${FRONTEND_URL}/dashboard`);
+//   }
+// );
+
+
+// app.get(
+//   "/api/auth/github/callback",
+//   passport.authenticate("github", { failureRedirect: "/" }),
+//   async (req, res) => {
+//     console.log("Successfully authenticated");
+//     res.redirect(`${FRONTEND_URL}/dashboard`);
+//   }
+// );
 
 app.get("/api/github/repos", async (req, res) => {
   if (!req.user) return res.status(401).json({ error: "Not logged in" });
