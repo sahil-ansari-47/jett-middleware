@@ -1,6 +1,6 @@
 // backend/src/server.ts
 import express from "express";
-import session from "express-session";
+// import session from "express-session";
 // import passport from "passport";
 // import "./strategies";
 import dotenv from "dotenv";
@@ -12,6 +12,7 @@ import cors from "cors";
 import { connectToDatabase } from "./config/db";
 import { User } from "./models/User";
 import { Project } from "./models/Projects";
+import { RevokedToken } from "./models/RevokedToken";
 dotenv.config();
 
 const app = express();
@@ -52,7 +53,9 @@ function authMiddleware(
   res: express.Response,
   next: express.NextFunction
 ) {
-  const token = req.cookies.token;
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) return res.status(401).json({ error: "Not authenticated" });
+  const token = authHeader && authHeader.split(" ")[1]; // "Bearer <token>"
   if (!token) return res.status(401).json({ error: "Not authenticated" });
 
   try {
@@ -60,8 +63,12 @@ function authMiddleware(
       token,
       process.env.SESSION_SECRET!
     ) as JwtPayload;
-    req.userId = decoded.userId;
-    next();
+    RevokedToken.findOne({ token }).then((revoked) => {
+      if (revoked) return res.status(401).json({ error: "Token revoked" });
+
+      req.userId = decoded.userId;
+      next();
+    });
   } catch {
     return res.status(401).json({ error: "Invalid token" });
   }
@@ -121,13 +128,13 @@ app.get("/api/auth/google/callback", async (req, res) => {
 
   // 4. Generate JWT + set cookie
   const token = generateToken(user._id.toString());
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-  });
+  // res.cookie("token", token, {
+  //   httpOnly: true,
+  //   secure: true,
+  //   sameSite: "none",
+  // });
 
-  res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+  res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
 });
 
 app.get("/api/auth/github", (req, res) => {
@@ -194,13 +201,13 @@ app.get("/api/auth/github/callback", async (req, res) => {
 
   // 4. JWT + cookie
   const token = generateToken(user._id.toString());
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-  });
+  // res.cookie("token", token, {
+  //   httpOnly: true,
+  //   secure: true,
+  //   sameSite: "none",
+  // });
 
-  res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+  res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
 });
 
 app.get("/api/auth/me", authMiddleware, async (req, res) => {
@@ -212,11 +219,19 @@ app.get("/api/auth/me", authMiddleware, async (req, res) => {
 // app.use(passport.initialize());
 // app.use(passport.session());
 
-app.post("/api/logout", (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: true,     // must match how you set the cookie
-    sameSite: "none", // must match how you set the cookie
+app.post("/api/logout", async(req, res) => {
+  // res.clearCookie("token", {
+  //   httpOnly: true,
+  //   secure: true,     // must match how you set the cookie
+  //   sameSite: "none", // must match how you set the cookie
+  // });
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) return res.status(400).json({ error: "No token" });
+
+  const token = authHeader.split(" ")[1];
+  await RevokedToken.create({
+    token,
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
 
   res.status(200).json({ message: "Logged out successfully" });
@@ -237,18 +252,20 @@ app.get("/", (req, res) => {
   res.send("Server running. Go to /auth/google or /auth/github to login.");
 });
 
-app.get("/api/github/repos", async (req, res) => {
+app.get("/api/github/repos", authMiddleware, async (req, res) => {
   if (!req.userId) return res.status(401).json({ error: "Not logged in" });
 
   try {
-    const at: string = req.userId.accessToken ?? "";
+    const user = await User.findById(req.userId);
+    let at: string = "";
+    if (user?.accessToken) at = user.accessToken;
+    console.log(at);
     const repos = await getUserRepos(at);
     res.json(repos);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
 });
-
 
 app.post("/api/create-project", async (req, res) => {
   console.log("create project hit", req.body);
@@ -310,82 +327,82 @@ app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );
 // app.get("/api/auth/me", async (req, res) => {
-  //   console.log("auth me hit");
-  //   if (!req.user) return res.json(null);
-  //   console.log(req.user);
-  //   try {
-    //     console.log(req.user);
-    //     const user = await User.findById(req.user._id).exec();
-    //     return res.json(user);
-    //   } catch (err: any) {
-      //     return res.status(500).json({ error: err.message });
-      //   }
-      // });
-      
-      // // Google auth
-      // app.get(
-        //   "/api/auth/google",
-        //   passport.authenticate("google", { scope: ["profile", "email"] })
-        // );
-        
-        // app.get(
+//   console.log("auth me hit");
+//   if (!req.user) return res.json(null);
+//   console.log(req.user);
+//   try {
+//     console.log(req.user);
+//     const user = await User.findById(req.user._id).exec();
+//     return res.json(user);
+//   } catch (err: any) {
+//     return res.status(500).json({ error: err.message });
+//   }
+// });
+
+// // Google auth
+// app.get(
+//   "/api/auth/google",
+//   passport.authenticate("google", { scope: ["profile", "email"] })
+// );
+
+// app.get(
 //   "/api/auth/github",
 //   passport.authenticate("github", {
 //     scope: ["read:user", "user:email", "repo"],
 //   })
 // );
 // app.get(
-  //   "/auth/github/callback",
-  //   passport.authenticate("github", { failureRedirect: "/" }),
-  //   (req, res) => {
-    //     // ⚡️ THIS persists user into session
-    //     if (req.user) {
-      //       req.login(req.user, (err) => {
-        //         if (err) return res.redirect("/?error=login");
-        //         res.redirect(`${FRONTEND_URL}/dashboard`);
-        //       });
-        //     } else {
-          //       console.log("no user");
-          //     }
-          //   }
-          // );
-          // app.get(
+//   "/auth/github/callback",
+//   passport.authenticate("github", { failureRedirect: "/" }),
+//   (req, res) => {
+//     // ⚡️ THIS persists user into session
+//     if (req.user) {
+//       req.login(req.user, (err) => {
+//         if (err) return res.redirect("/?error=login");
+//         res.redirect(`${FRONTEND_URL}/dashboard`);
+//       });
+//     } else {
+//       console.log("no user");
+//     }
+//   }
+// );
+// app.get(
 //   "/auth/google/callback",
 //   passport.authenticate("google", { failureRedirect: "/" }),
 //   (req, res) => {
-  //     // ⚡️ THIS persists user into session
-  //     if (req.user) {
-    //       req.login(req.user, (err) => {
-      //         if (err) return res.redirect("/?error=login");
-      //         res.redirect(`${FRONTEND_URL}/dashboard`);
-      //       });
-      //     } else {
-        //       console.log("no user");
-        //     }
-        //   }
-        // );
-        
-        // app.get(
-          //   "/api/auth/google/callback",
-          //   passport.authenticate("google", { failureRedirect: "/" }),
-          //   (req, res) => {
-            //     // console.log("Successfully authenticated");
-            //     // res.redirect(`${FRONTEND_URL}/dashboard`);
-            //   }
-            // );
-            
-            // app.get(
-              //   "/api/auth/github/callback",
-              //   passport.authenticate("github", { failureRedirect: "/" }),
-              //   async (req, res) => {
-                //     console.log("Successfully authenticated");
-                //     res.redirect(`${FRONTEND_URL}/dashboard`);
-                //   }
-                // );
-                
-                // app.get("/api/logout", (req, res) => {
-                //   req.logout(() => {
-                //     res.clearCookie("connect.sid");
-                //     res.send({ ok: true });
-                //   });
-                // });
+//     // ⚡️ THIS persists user into session
+//     if (req.user) {
+//       req.login(req.user, (err) => {
+//         if (err) return res.redirect("/?error=login");
+//         res.redirect(`${FRONTEND_URL}/dashboard`);
+//       });
+//     } else {
+//       console.log("no user");
+//     }
+//   }
+// );
+
+// app.get(
+//   "/api/auth/google/callback",
+//   passport.authenticate("google", { failureRedirect: "/" }),
+//   (req, res) => {
+//     // console.log("Successfully authenticated");
+//     // res.redirect(`${FRONTEND_URL}/dashboard`);
+//   }
+// );
+
+// app.get(
+//   "/api/auth/github/callback",
+//   passport.authenticate("github", { failureRedirect: "/" }),
+//   async (req, res) => {
+//     console.log("Successfully authenticated");
+//     res.redirect(`${FRONTEND_URL}/dashboard`);
+//   }
+// );
+
+// app.get("/api/logout", (req, res) => {
+//   req.logout(() => {
+//     res.clearCookie("connect.sid");
+//     res.send({ ok: true });
+//   });
+// });
