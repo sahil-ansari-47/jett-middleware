@@ -31,5 +31,6 @@ export const appConfig: ApplicationConfig = {
     ),
     provideHttpClient(withFetch()),
     provideAnimations(),
+    provideClientHydration(withEventReplay()),
   ],
 };
