@@ -4,6 +4,7 @@ api/node_modules
 frontend/node_modules
 frontend/.angular/
 frontend/.env
+frontend/dist
 .vscode/
 api/.env
 api/dist

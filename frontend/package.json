@@ -7,7 +7,7 @@
     "dev:ssr": "ng serve --proxy-config proxy.conf.json",
     "build:ssr": "ng build && ng run frontend:server",
     "serve:ssr": "node dist/frontend/server/main.js",
-    "build": "ng build",
+    "build": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:jett": "node dist/jett/server/server.mjs"
