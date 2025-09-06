@@ -271,7 +271,6 @@ app.get("/api/github/repos", authMiddleware, async (req, res) => {
     }
     console.log(user.accessToken);
     const repos = await getUserRepos(user.accessToken);
-    console.log(repos);
     res.json(repos);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
@@ -328,6 +327,9 @@ app.patch("/api/update-status", async (req, res) => {
 });
 
 app.get("/api/projects", async (req, res) => {
+  console.log("projects hit");
+  // const authHeader = req.headers["authorization"];
+  // if (!authHeader) return res.status(400).json({ error: "No token" });
   const projects = await Project.find().exec();
   return res.status(200).json(projects);
 });
