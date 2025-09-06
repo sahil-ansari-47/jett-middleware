@@ -321,7 +321,7 @@ app.patch("/api/update-status", async (req, res) => {
   const status: string = response.status;
   let deployed_url: string = response.url;
   if(response.url!==''){
-    deployed_url = `${response.url}/index.html`;
+    deployed_url = `${response.url}index.html`;
   }
   await Project.findOneAndUpdate(
     { deploy_id: deploy_id },
