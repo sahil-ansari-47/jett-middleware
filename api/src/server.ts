@@ -281,9 +281,10 @@ app.post("/api/create-project", async (req, res) => {
   console.log("create project hit", req.body);
   let repoUrl: string = req.body.repoUrl;
   const deploy_id: string = req.body.deploy_id;
+  const username = req.body.username;
+  const user_id = req.body.user_id;
   repoUrl = repoUrl.trim().slice(19);
   if (repoUrl.endsWith(".git")) repoUrl = repoUrl.slice(0, -4);
-  const username = repoUrl.split("/")[0];
   const repo: any = await fetch(`https://api.github.com/repos/${repoUrl}`).then(
     (res) => res.json()
   );
@@ -295,13 +296,13 @@ app.post("/api/create-project", async (req, res) => {
   ).then((res) => res.json());
   const last_commit_message = commit_desc.commit.commit.message;
   const last_commit_datetime = commit_desc.commit.commit.author.date;
-  const user: any = await User.findOne({ username: username }).exec();
+  // const user: any = await User.findOne({ username: username }).exec();
   const project = new Project({
     project_name,
     repo_link,
     branch_name,
-    user_id: user?._id,
-    username: username,
+    user_id,
+    username,
     last_commit_message,
     last_commit_datetime,
     status: "uploaded",
@@ -318,7 +319,10 @@ app.patch("/api/update-status", async (req, res) => {
   );
   console.log(response);
   const status: string = response.status;
-  const deployed_url: string = response.url;
+  let deployed_url: string = response.url;
+  if(response.url!==''){
+    deployed_url = `${response.url}/index.html`;
+  }
   await Project.findOneAndUpdate(
     { deploy_id: deploy_id },
     { $set: { status: status, deployed_url: deployed_url } }
