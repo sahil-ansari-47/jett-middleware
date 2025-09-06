@@ -3,3 +3,5 @@ api/node_modules
 .vscode/
 api/.env
 api/dist
+
+# del frontend
