@@ -194,7 +194,9 @@ app.get("/api/auth/github/callback", async (req, res) => {
       user.providers.push("github");
     }
     user.username = profile.login;
-    user.avatar = profile.avatar_url;
+    if (!user.avatar) {
+      user.avatar = profile.avatar_url;
+    }
     user.accessToken = tokens.access_token; // refresh token if needed
     await user.save();
   }
@@ -219,7 +221,7 @@ app.get("/api/auth/me", authMiddleware, async (req, res) => {
 // app.use(passport.initialize());
 // app.use(passport.session());
 
-app.post("/api/logout", async(req, res) => {
+app.post("/api/logout", async (req, res) => {
   // res.clearCookie("token", {
   //   httpOnly: true,
   //   secure: true,     // must match how you set the cookie
@@ -253,14 +255,23 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/github/repos", authMiddleware, async (req, res) => {
-  if (!req.userId) return res.status(401).json({ error: "Not logged in" });
+  // const authHeader= req.headers["authorization"];
+  // if (!authHeader) return res.status(401).json({ error: "Not logged in" });
 
+  // const token=authHeader.split(" ")[1];
+  // const user = await User.findOne({ accessToken: token });
+  // if (!user) return res.status(401).json({ error: "User not found" });
   try {
-    const user = await User.findById(req.userId);
-    let at: string = "";
-    if (user?.accessToken) at = user.accessToken;
-    console.log(at);
-    const repos = await getUserRepos(at);
+    console.log("github repos hit");
+    const user = await User.findById(req.userId).exec();
+    if (!user || !user.accessToken) {
+      return res
+        .status(401)
+        .json({ error: "User not found or no GitHub token" });
+    }
+    console.log(user.accessToken);
+    const repos = await getUserRepos(user.accessToken);
+    console.log(repos);
     res.json(repos);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
