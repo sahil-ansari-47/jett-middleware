@@ -1,8 +1,5 @@
 // backend/src/server.ts
 import express from "express";
-// import session from "express-session";
-// import passport from "passport";
-// import "./strategies";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
 import jwt, { JwtPayload as DefaultJwtPayload } from "jsonwebtoken";
@@ -16,6 +13,14 @@ import { RevokedToken } from "./models/RevokedToken";
 dotenv.config();
 
 const app = express();
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options", "ALLOWALL");
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:"
+  );
+  next();
+});
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
@@ -31,18 +36,6 @@ app.use(
     credentials: true,
   })
 );
-// Session setup
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET || "supersecret",
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: true, //changes required
-//       sameSite: "none", //changes required
-//     },
-//   })
-// );
 
 function generateToken(userId: string) {
   return jwt.sign({ userId }, process.env.SESSION_SECRET!, { expiresIn: "7d" });
@@ -128,11 +121,6 @@ app.get("/api/auth/google/callback", async (req, res) => {
 
   // 4. Generate JWT + set cookie
   const token = generateToken(user._id.toString());
-  // res.cookie("token", token, {
-  //   httpOnly: true,
-  //   secure: true,
-  //   sameSite: "none",
-  // });
 
   res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
 });
@@ -203,11 +191,6 @@ app.get("/api/auth/github/callback", async (req, res) => {
 
   // 4. JWT + cookie
   const token = generateToken(user._id.toString());
-  // res.cookie("token", token, {
-  //   httpOnly: true,
-  //   secure: true,
-  //   sameSite: "none",
-  // });
 
   res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
 });
@@ -217,16 +200,7 @@ app.get("/api/auth/me", authMiddleware, async (req, res) => {
   res.json(user);
 });
 
-// Passport setup
-// app.use(passport.initialize());
-// app.use(passport.session());
-
 app.post("/api/logout", async (req, res) => {
-  // res.clearCookie("token", {
-  //   httpOnly: true,
-  //   secure: true,     // must match how you set the cookie
-  //   sameSite: "none", // must match how you set the cookie
-  // });
   const authHeader = req.headers["authorization"];
   if (!authHeader) return res.status(400).json({ error: "No token" });
 
@@ -320,7 +294,7 @@ app.patch("/api/update-status", async (req, res) => {
   console.log(response);
   const status: string = response.status;
   let deployed_url: string = response.url;
-  if(response.url!==''){
+  if (response.url !== "") {
     deployed_url = `${response.url}index.html`;
   }
   await Project.findOneAndUpdate(
@@ -343,83 +317,3 @@ connectToDatabase(process.env.MONGODB_URI || "");
 app.listen(PORT, () =>
   console.log(`Server running on http://localhost:${PORT}`)
 );
-// app.get("/api/auth/me", async (req, res) => {
-//   console.log("auth me hit");
-//   if (!req.user) return res.json(null);
-//   console.log(req.user);
-//   try {
-//     console.log(req.user);
-//     const user = await User.findById(req.user._id).exec();
-//     return res.json(user);
-//   } catch (err: any) {
-//     return res.status(500).json({ error: err.message });
-//   }
-// });
-
-// // Google auth
-// app.get(
-//   "/api/auth/google",
-//   passport.authenticate("google", { scope: ["profile", "email"] })
-// );
-
-// app.get(
-//   "/api/auth/github",
-//   passport.authenticate("github", {
-//     scope: ["read:user", "user:email", "repo"],
-//   })
-// );
-// app.get(
-//   "/auth/github/callback",
-//   passport.authenticate("github", { failureRedirect: "/" }),
-//   (req, res) => {
-//     // ⚡️ THIS persists user into session
-//     if (req.user) {
-//       req.login(req.user, (err) => {
-//         if (err) return res.redirect("/?error=login");
-//         res.redirect(`${FRONTEND_URL}/dashboard`);
-//       });
-//     } else {
-//       console.log("no user");
-//     }
-//   }
-// );
-// app.get(
-//   "/auth/google/callback",
-//   passport.authenticate("google", { failureRedirect: "/" }),
-//   (req, res) => {
-//     // ⚡️ THIS persists user into session
-//     if (req.user) {
-//       req.login(req.user, (err) => {
-//         if (err) return res.redirect("/?error=login");
-//         res.redirect(`${FRONTEND_URL}/dashboard`);
-//       });
-//     } else {
-//       console.log("no user");
-//     }
-//   }
-// );
-
-// app.get(
-//   "/api/auth/google/callback",
-//   passport.authenticate("google", { failureRedirect: "/" }),
-//   (req, res) => {
-//     // console.log("Successfully authenticated");
-//     // res.redirect(`${FRONTEND_URL}/dashboard`);
-//   }
-// );
-
-// app.get(
-//   "/api/auth/github/callback",
-//   passport.authenticate("github", { failureRedirect: "/" }),
-//   async (req, res) => {
-//     console.log("Successfully authenticated");
-//     res.redirect(`${FRONTEND_URL}/dashboard`);
-//   }
-// );
-
-// app.get("/api/logout", (req, res) => {
-//   req.logout(() => {
-//     res.clearCookie("connect.sid");
-//     res.send({ ok: true });
-//   });
-// });
